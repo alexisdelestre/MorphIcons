@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Morphing Icons</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #0b0c0f;
+    --panel: #16181d;
+    --border: #2a2d34;
+    --text: #eceef1;
+    --muted: #9aa0aa;
+    --accent: #6ea8fe;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 80px;
+    gap: 36px;
+  }
+  h1 { font-size: 18px; font-weight: 600; margin: 0; }
+  .hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 160px;
+    height: 160px;
+    border-radius: 24px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+  }
+  .hero morph-icon { --morph-icon-size: 84px; stroke-width: 1.5; }
+  .controls { display: flex; gap: 10px; align-items: center; }
+  select, button {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  button { cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    max-width: 700px;
+  }
+  .cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 6px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+  .cell:hover { border-color: var(--accent); }
+  .cell.active { border-color: var(--accent); background: #1c2333; }
+  .cell morph-icon { width: 24px; height: 24px; }
+  .cell span { font-size: 10px; color: var(--muted); text-align: center; }
+  .note { max-width: 640px; color: var(--muted); font-size: 12.5px; text-align: center; }
+  code { background: #1e2128; padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<h1>Morphing Icons — 21 icons, 3 lines each</h1>
+
+<div class="hero">
+  <morph-icon id="heroIcon" icon="menu" duration="500"></morph-icon>
+</div>
+
+<div class="controls">
+  <button id="prevBtn">&larr; prev</button>
+  <button id="playBtn">▶ cycle all</button>
+  <button id="nextBtn">next &rarr;</button>
+  <select id="durationSelect">
+    <option value="150">150ms</option>
+    <option value="450" selected>450ms</option>
+    <option value="900">900ms</option>
+    <option value="1800">1800ms (inspect)</option>
+  </select>
+</div>
+
+<p class="note">Click any icon below to morph the hero into it. Same-rotation-group icons
+(the four arrows, the four chevrons, plus/cross) rotate a shared shape; every other
+transition interpolates the raw line coordinates.</p>
+
+<div class="grid" id="grid"></div>
+
+<script type="module">
+  import { ICON_NAMES } from './icons.js';
+  import './morph-icon-element.js';
+
+  const hero = document.getElementById('heroIcon');
+  const grid = document.getElementById('grid');
+  const durationSelect = document.getElementById('durationSelect');
+
+  let index = 0;
+
+  function setActive(name) {
+    [...grid.children].forEach((cell) => {
+      cell.classList.toggle('active', cell.dataset.name === name);
+    });
+  }
+
+  ICON_NAMES.forEach((name) => {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.dataset.name = name;
+    cell.innerHTML = `<morph-icon icon="${name}"></morph-icon><span>${name}</span>`;
+    cell.addEventListener('click', () => goTo(name));
+    grid.appendChild(cell);
+  });
+
+  function goTo(name) {
+    index = ICON_NAMES.indexOf(name);
+    hero.morphTo(name, { duration: Number(durationSelect.value) });
+    setActive(name);
+  }
+
+  document.getElementById('prevBtn').addEventListener('click', () => {
+    index = (index - 1 + ICON_NAMES.length) % ICON_NAMES.length;
+    goTo(ICON_NAMES[index]);
+  });
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    index = (index + 1) % ICON_NAMES.length;
+    goTo(ICON_NAMES[index]);
+  });
+
+  let playing = false;
+  let playTimer = null;
+  document.getElementById('playBtn').addEventListener('click', (e) => {
+    playing = !playing;
+    e.target.textContent = playing ? '⏸ stop' : '▶ cycle all';
+    if (playing) {
+      const step = async () => {
+        if (!playing) return;
+        index = (index + 1) % ICON_NAMES.length;
+        await goTo(ICON_NAMES[index]);
+        playTimer = setTimeout(step, 550);
+      };
+      step();
+    } else {
+      clearTimeout(playTimer);
+    }
+  });
+
+  setActive('menu');
+</script>
+</body>
+</html>

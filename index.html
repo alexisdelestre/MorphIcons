@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Morph Icons</title>
+<meta name="description" content="Pictos morphables à 3 lignes : playground, éditeur et intégration React, React Native, SwiftUI, Jetpack Compose et Flutter." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2.4' stroke-linecap='round'%3E%3Cline x1='4' y1='7' x2='20' y2='7'/%3E%3Cline x1='4' y1='12' x2='20' y2='12'/%3E%3Cline x1='4' y1='17' x2='20' y2='17'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="site/style.css" />
+<!-- Syntax highlighting (optional: the page works without it). -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" media="(prefers-color-scheme: light)" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/dart.min.js" defer></script>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="#playground"><span class="brand-icon" id="brandIcon"></span>Morph Icons</a>
+  <nav class="tabs" aria-label="Sections">
+    <a href="#playground" data-tab="playground">Playground</a>
+    <a href="#editor" data-tab="editor">Éditeur</a>
+    <a href="#integration" data-tab="integration">Intégration</a>
+    <a href="#guide" data-tab="guide">Guide</a>
+  </nav>
+  <div class="data-status" id="dataStatus"></div>
+</header>
+
+<div class="draft-bar" id="draftBar" hidden>
+  <div class="draft-text">
+    <span id="draftText"></span>
+    <span class="draft-notes" id="draftNotes"></span>
+  </div>
+  <div class="draft-actions">
+    <button class="btn btn-primary" id="downloadBtn">Télécharger morph-icons.json</button>
+    <button class="btn" id="copyJsonBtn">Copier le JSON</button>
+    <a class="btn btn-ghost" href="#guide/publish">Comment publier ?</a>
+    <button class="btn btn-ghost" id="discardBtn">Abandonner</button>
+  </div>
+</div>
+
+<p class="load-error" id="loadError" hidden></p>
+
+<main>
+
+<!-- ======================================================= Playground -->
+<section id="tab-playground" class="tab-panel">
+  <div class="pg-layout">
+    <div class="card stage" id="stage">
+      <div class="stage-preview"><div id="hero"></div></div>
+
+      <div class="scrub">
+        <button class="icon-btn" id="playBtn" aria-label="Jouer">▶</button>
+        <input type="range" id="scrub" min="0" max="1000" value="1000" aria-label="Progression de la transition" />
+        <output id="scrubOut">100 %</output>
+      </div>
+
+      <div class="pair">
+        <label>De <select id="fromSel"></select></label>
+        <button class="icon-btn" id="swapBtn" title="Inverser le sens" aria-label="Inverser le sens">⇄</button>
+        <label>Vers <select id="toSel"></select></label>
+      </div>
+
+      <div class="options">
+        <label class="check"><input type="checkbox" id="debugChk" /> Afficher les lignes</label>
+        <label>Durée <input type="number" id="durInput" min="50" max="5000" step="50" class="num" /> ms</label>
+      </div>
+
+      <p class="pair-info" id="pairInfo"></p>
+      <div id="overridePanel"></div>
+    </div>
+
+    <div class="card side">
+      <h2>Tous les pictos</h2>
+      <p class="hint">Cliquez un picto pour lancer la transition depuis celui affiché, comme dans une app. Le curseur permet ensuite de la décomposer image par image.</p>
+      <div class="icon-grid" id="iconGrid"></div>
+    </div>
+  </div>
+
+  <div class="card review">
+    <div class="review-head">
+      <h2>Revue rapide</h2>
+      <label>Depuis <select id="reviewSel"></select></label>
+    </div>
+    <p class="hint">Toutes les transitions depuis un picto, en aller-retour. Repérez celles qui « sonnent faux » et cliquez dessus pour les inspecter et les corriger.</p>
+    <div class="review-grid" id="reviewGrid"></div>
+  </div>
+</section>
+
+<!-- ======================================================= Editor -->
+<section id="tab-editor" class="tab-panel" hidden>
+  <div class="ed-errors" id="edErrors" hidden></div>
+  <div class="ed-layout">
+    <aside class="card ed-list-card">
+      <div class="ed-list-head">
+        <h2>Pictos</h2>
+        <button class="btn btn-small btn-primary" id="newIconBtn">+ Nouveau</button>
+      </div>
+      <div id="edNew" hidden></div>
+      <ul class="ed-list" id="edList"></ul>
+      <details class="ed-settings">
+        <summary>Réglages globaux</summary>
+        <label class="inline">Durée par défaut <input type="number" id="edDuration" min="50" max="5000" step="25" class="num" /> ms</label>
+        <label class="inline">Épaisseur du trait <input type="number" id="edStroke" min="0.25" max="6" step="0.25" class="num" /></label>
+      </details>
+      <label class="btn btn-small btn-ghost import-btn">Importer un JSON…<input type="file" id="importInput" accept=".json,application/json" hidden /></label>
+    </aside>
+
+    <div class="card ed-canvas-card">
+      <div class="ed-canvas-head">
+        <h2 id="edTitle"></h2>
+        <p class="hint" id="edGroupNote"></p>
+      </div>
+      <div class="ed-canvas" id="edCanvas"></div>
+      <div class="ed-canvas-foot">
+        <label>Magnétisme
+          <select id="snapSel">
+            <option value="1">1</option>
+            <option value="0.5" selected>0,5</option>
+            <option value="0.25">0,25</option>
+            <option value="0">libre</option>
+          </select>
+        </label>
+        <span class="hint">Glissez les points (● début, ○ fin) ou une ligne entière. Le cadre pointillé est la marge de 2.</span>
+      </div>
+    </div>
+
+    <div class="card ed-props" id="edProps"></div>
+  </div>
+</section>
+
+<!-- ======================================================= Integration -->
+<section id="tab-integration" class="tab-panel" hidden>
+  <div class="card intro">
+    <h2>Intégrer les pictos dans une app</h2>
+    <p>Le moteur s’intègre <b>une seule fois</b> par app, puis il gère <b>tous les pictos et toutes les transitions</b> : changez le nom du picto affiché, il anime. Les pictos eux-mêmes vivent dans un fichier de données, <code>morph-icons.json</code>, maintenu par les designers. Mettre à jour les pictos = remplacer ce fichier.</p>
+    <div class="arch">
+      <div><b>Moteur</b><span>1 à 2 fichiers par plateforme · intégré une fois · ne change quasiment jamais</span></div>
+      <div class="plus">+</div>
+      <div><b>morph-icons.json</b><span>tous les pictos · identique sur toutes les plateformes · mis à jour par les designers</span></div>
+    </div>
+  </div>
+  <nav class="subtabs" id="platformTabs" aria-label="Plateformes"></nav>
+  <div class="card platform-body" id="platformBody"></div>
+</section>
+
+<!-- ======================================================= Guide -->
+<section id="tab-guide" class="tab-panel" hidden>
+  <article class="card prose guide">
+    <h2>Comment ça marche</h2>
+    <p><b>Chaque picto est fait d’exactement 3 lignes</b>, sur une grille de 24 (épaisseur 2, bouts arrondis, dans l’esprit de Phosphor). Comme tous les pictos ont la même structure, n’importe lequel peut se transformer en n’importe quel autre : chaque ligne glisse vers une ligne du picto d’arrivée.</p>
+    <p><b>Moins de 3 traits ?</b> Les lignes en trop sont <i>masquées</i> : elles deviennent un point invisible au centre. Pendant une transition, une ligne masquée « pousse » depuis le centre, ou s’y résorbe en s’effaçant.</p>
+    <p><b>Même forme, autre angle ? Rotation.</b> Les 4 flèches, les 4 chevrons, plus/croix, télécharger/envoyer sont des <i>groupes de rotation</i> : une seule forme, plusieurs angles. Entre deux pictos d’un même groupe, la forme tourne (toujours par le plus court chemin) au lieu de se déformer.</p>
+    <p><b>Quelle ligne va où ?</b> Le moteur choisit automatiquement l’appariement qui fait le moins voyager les points : l’ordre dans lequel vous dessinez les lignes n’a pas d’importance. Quand le résultat ne plaît pas à l’œil, une <i>correction manuelle</i> impose l’appariement pour cette paire précise.</p>
+
+    <h2 id="fix">Corriger une transition</h2>
+    <ol>
+      <li><b>Playground</b> : choisissez la paire (cliquez dans la <i>Revue rapide</i> ou utilisez les menus De / Vers).</li>
+      <li>Cochez <b>Afficher les lignes</b> et utilisez le curseur : chaque ligne a sa couleur, ● marque son début, ○ sa fin, et les pictos de départ / d’arrivée apparaissent en filigrane.</li>
+      <li>Cliquez <b>Corriger cette transition…</b>, puis choisissez pour chaque ligne de départ la ligne d’arrivée qu’elle doit devenir (et son sens). L’aperçu se met à jour en direct.</li>
+      <li><b>Enregistrer dans le brouillon</b>. La correction vaut dans les deux sens (A → B et B → A).</li>
+      <li>Si la transition reste moche quel que soit l’appariement, c’est souvent le dessin qu’il faut ajuster : passez par l’éditeur.</li>
+    </ol>
+
+    <h2 id="add">Ajouter ou modifier un picto</h2>
+    <ol>
+      <li><b>Éditeur › + Nouveau</b> : donnez un nom (minuscules et tirets, ex. <code>arrow-up-right</code>). Ce nom est celui qu’utiliseront les devs : choisissez-le bien.</li>
+      <li>Dessinez avec 3 lignes maximum. Glissez les points, masquez les lignes inutiles. Restez dans la marge de 2 (cadre pointillé).</li>
+      <li>Si c’est une variante tournée d’un picto existant (ex. une flèche en diagonale), préférez <b>+ Variante tournée</b> dans un groupe : elle tournera proprement.</li>
+      <li>Vérifiez les transitions avec <b>Tester</b> et la <b>Revue rapide</b> depuis votre picto.</li>
+    </ol>
+    <p>Renommer ou supprimer un picto casse les apps qui l’utilisent : prévenez les devs.</p>
+
+    <h2 id="publish">Publier une nouvelle version</h2>
+    <p>Vos modifications restent dans un <b>brouillon local</b> (dans ce navigateur) tant qu’elles ne sont pas publiées. Pour publier :</p>
+    <ol>
+      <li><b>Télécharger morph-icons.json</b> dans la barre du brouillon. Le numéro de version est incrémenté automatiquement.</li>
+      <li>Sur GitHub, ouvrez le dépôt, puis <b>Add file › Upload files</b> et déposez le fichier (il remplace l’ancien). Décrivez le changement, puis <b>Commit changes</b>.</li>
+      <li>Cette page est mise à jour en une minute environ. Abandonnez alors votre brouillon.</li>
+      <li>Prévenez les devs : « morph-icons.json v<i>N</i> disponible ». Ils remplacent le fichier dans chaque app, sans toucher au code.</li>
+    </ol>
+    <p>Le fichier est formaté avec un picto par ligne : sur GitHub, l’onglet des différences montre exactement ce qui a changé.</p>
+
+    <h2 id="maintain">Pour les mainteneurs du moteur</h2>
+    <p>Le moteur de référence est <code>core/morph-core.ts</code>. Les versions Swift, Kotlin et Dart en sont des traductions ligne à ligne. Elles sont vérifiées par les <b>fixtures de conformité</b> (<code>conformance/fixtures.json</code>) : 420 transitions calculées par la référence, que chaque version doit reproduire à 10<sup>-4</sup> près. Le CI GitHub (<code>.github/workflows/ci.yml</code>) lance toutes ces vérifications à chaque commit.</p>
+    <pre><code>npm test                     # tests de la référence + fichiers générés à jour
+node scripts/build.mjs       # après une modification de core/morph-core.ts</code></pre>
+    <p>Les designers qui ne modifient que <code>morph-icons.json</code> n’ont rien à lancer.</p>
+  </article>
+</section>
+
+</main>
+
+<script type="module" src="site/app.js"></script>
+<script>
+  // Classic script (runs even where modules are blocked): never leave a blank page.
+  (function () {
+    function fail(html) {
+      if (document.body.classList.contains('ready')) return;
+      var box = document.getElementById('loadError');
+      box.innerHTML = html;
+      box.hidden = false;
+      document.body.classList.add('load-failed');
+    }
+    var howTo =
+      '<b>Ouvrez la page autrement.</b> En local, double-cliquez sur <code>Ouvrir la page.command</code> dans le dossier du projet ' +
+      '(ou lancez <code>npm run serve</code> puis allez sur <code>http://localhost:8934</code>). En ligne, utilisez l’adresse GitHub Pages.';
+    if (location.protocol === 'file:') {
+      fail('<p>Cette page a été ouverte directement depuis le disque (double-clic sur <code>index.html</code>). Dans ce cas, le navigateur bloque par sécurité le chargement des pictos et du code.</p><p>' + howTo + '</p>');
+      return;
+    }
+    setTimeout(function () {
+      fail('<p>La page n’a pas pu démarrer (le script ne s’est pas chargé, ou le navigateur est trop ancien). Rechargez la page ; si le problème persiste, ouvrez la console du navigateur pour voir l’erreur.</p><p>' + howTo + '</p>');
+    }, 8000);
+  })();
+</script>
+</body>
+</html>

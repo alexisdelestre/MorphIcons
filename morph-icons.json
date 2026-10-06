@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "viewBox": 24,
+  "strokeWidth": 2,
+  "duration": 450,
+  "groups": {
+    "arrow": [[18, 12, 4, 12], [18, 12, 12, 6], [18, 12, 12, 18]],
+    "chevron": [null, [15, 12, 9, 5], [15, 12, 9, 19]],
+    "plus": [[12, 4, 12, 20], [4, 12, 20, 12], null],
+    "transfer": [[12, 15, 12, 4], [12, 15, 18, 9], [12, 15, 6, 9]]
+  },
+  "icons": {
+    "menu": { "lines": [[4, 7, 20, 7], [4, 12, 20, 12], [4, 17, 20, 17]] },
+    "arrow-right": { "group": "arrow", "rotation": 0 },
+    "arrow-down": { "group": "arrow", "rotation": 90 },
+    "arrow-left": { "group": "arrow", "rotation": 180 },
+    "arrow-up": { "group": "arrow", "rotation": 270 },
+    "chevron-right": { "group": "chevron", "rotation": 0 },
+    "chevron-down": { "group": "chevron", "rotation": 90 },
+    "chevron-left": { "group": "chevron", "rotation": 180 },
+    "chevron-up": { "group": "chevron", "rotation": 270 },
+    "plus": { "group": "plus", "rotation": 0 },
+    "cross": { "group": "plus", "rotation": 45 },
+    "download": { "group": "transfer", "rotation": 0 },
+    "upload": { "group": "transfer", "rotation": 180 },
+    "minus": { "lines": [null, [4, 12, 20, 12], null] },
+    "equals": { "lines": [[4, 9, 20, 9], [4, 15, 20, 15], null] },
+    "asterisk": { "lines": [[12, 3, 12, 21], [19.79, 7.5, 4.21, 16.5], [19.79, 16.5, 4.21, 7.5]] },
+    "more": { "lines": [[6, 12, 6, 12], [12, 12, 12, 12], [18, 12, 18, 12]] },
+    "check": { "lines": [null, [9, 17, 19, 6], [9, 17, 5, 13]] },
+    "play": { "lines": [[8, 5, 8, 19], [18, 12, 8, 5], [18, 12, 8, 19]] },
+    "pause": { "lines": [[9, 5, 9, 19], [15, 5, 15, 19], null] },
+    "external": { "lines": [[17, 7, 7, 17], [17, 7, 10, 7], [17, 7, 17, 14]] }
+  },
+  "overrides": {}
+}

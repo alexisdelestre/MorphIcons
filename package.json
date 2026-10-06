@@ -1,0 +1,22 @@
+{
+  "name": "morph-icons",
+  "private": true,
+  "type": "module",
+  "description": "3-line morphing icons: shared JSON + engines for React, React Native, SwiftUI, Jetpack Compose and Flutter.",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node scripts/build.mjs --check && node --experimental-strip-types --no-warnings --test tests/core.test.ts",
+    "typecheck": "node scripts/typecheck.mjs",
+    "serve": "python3 -m http.server 8934"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "react": "^18.3.0",
+    "react-native": "~0.76.0",
+    "react-native-svg": "^15.0.0",
+    "typescript": "^5.9.0"
+  }
+}

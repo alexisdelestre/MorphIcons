@@ -1,0 +1,66 @@
+# Checks every engine against the same conformance fixtures on each push.
+# Designers only editing morph-icons.json: the "reference" job validates it.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  reference:
+    name: Reference engine (TypeScript) + data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Validates morph-icons.json, runs the engine tests, and checks that
+      # dist/ and the fixtures were regenerated after any engine change.
+      - run: npm test
+
+  typecheck:
+    name: React + React Native typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund --legacy-peer-deps --ignore-scripts
+      - run: npm run typecheck
+
+  swift:
+    name: Swift conformance
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: swiftc -O platforms/swiftui/MorphCore.swift conformance/swift/main.swift -o morph-swift-conformance
+      - run: ./morph-swift-conformance conformance/fixtures.json
+      - name: Typecheck the SwiftUI view
+        run: xcrun --sdk macosx swiftc -typecheck -target arm64-apple-macos12.0 platforms/swiftui/MorphCore.swift platforms/swiftui/MorphIcon.swift
+
+  kotlin:
+    name: Kotlin conformance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Get kotlinc and org.json
+        run: |
+          curl -sSLo kotlin.zip https://github.com/JetBrains/kotlin/releases/download/v2.0.21/kotlin-compiler-2.0.21.zip
+          unzip -q kotlin.zip
+          curl -sSLo json.jar https://repo1.maven.org/maven2/org/json/json/20240303/json-20240303.jar
+      - run: ./kotlinc/bin/kotlinc platforms/compose/MorphCore.kt conformance/kotlin/Conformance.kt -cp json.jar -include-runtime -d conformance.jar
+      - run: java -cp conformance.jar:json.jar ConformanceKt conformance/fixtures.json
+
+  dart:
+    name: Dart conformance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - run: dart run conformance/dart/conformance.dart conformance/fixtures.json
